@@ -3,3 +3,20 @@ export type AlgorithmStep =
   | { type: "update"; index: number; value: number }
   | { type: "explain"; text: string }
   | { type: "done" };
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  

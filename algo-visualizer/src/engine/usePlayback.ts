@@ -1,50 +1,35 @@
-// core of everything
-
 import { useEffect, useRef, useState } from "react";
 import { AlgorithmStep } from "../types/AlgorithmStep";
 
-export function usePlayback(steps: AlgorithmStep[], speed = 500) {
+export function usePlayback(
+  steps: AlgorithmStep[],
+  speedMs: number = 600
+) {
   const [index, setIndex] = useState(0);
-  const [isPlaying, setIsPlaying] = useState(false);
+  const [playing, setPlaying] = useState(false);
   const timer = useRef<number | null>(null);
 
   useEffect(() => {
-    if (steps.length === 0) {
-      setIndex(0);
-      setIsPlaying(false);
-      return;
-    }
-    setIndex((i) => Math.min(i, steps.length - 1));
-  }, [steps.length]);
+    if (!playing) return;
 
-  useEffect(() => {
-    if (!isPlaying || steps.length === 0) return;
     timer.current = window.setInterval(() => {
-      setIndex((i) => {
-        if (i >= steps.length - 1) {
-          setIsPlaying(false);
-          return i;
-        }
-        return i + 1;
-      });
-    }, speed);
+      setIndex((i) => Math.min(i + 1, steps.length - 1));
+    }, speedMs);
 
     return () => {
-      if (timer.current !== null) clearInterval(timer.current);
+      if (timer.current) clearInterval(timer.current);
     };
-  }, [isPlaying, speed, steps.length]);
+  }, [playing, speedMs, steps.length]);
 
   function play() {
-    if (steps.length === 0) return;
-    setIsPlaying(true);
+    setPlaying(true);
   }
 
   function pause() {
-    setIsPlaying(false);
+    setPlaying(false);
   }
 
   function next() {
-    if (steps.length === 0) return;
     setIndex((i) => Math.min(i + 1, steps.length - 1));
   }
 
@@ -53,18 +38,18 @@ export function usePlayback(steps: AlgorithmStep[], speed = 500) {
   }
 
   function reset() {
+    setPlaying(false);
     setIndex(0);
-    setIsPlaying(false);
   }
 
   return {
     step: steps[index],
     index,
+    isPlaying: playing,
     play,
     pause,
     next,
     prev,
     reset,
-    playing: isPlaying,
   };
 }
